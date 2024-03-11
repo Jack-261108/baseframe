@@ -18,6 +18,7 @@
 package com.jack.configuration;
 
 import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.concurrent.TimeUnit;
 
@@ -25,6 +26,7 @@ import java.util.concurrent.TimeUnit;
  * 分布式缓存配置
  */
 @Data
+@ConfigurationProperties(prefix = RedisDistributedProperties.PREFIX)
 public class RedisDistributedProperties {
 
     public static final String PREFIX = "framework.cache.redis";

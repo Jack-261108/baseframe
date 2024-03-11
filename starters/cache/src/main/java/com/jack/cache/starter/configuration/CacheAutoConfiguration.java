@@ -21,10 +21,14 @@ import com.jack.RedisKeySerializer;
 import com.jack.StringRedisTemplateProxy;
 import com.jack.configuration.BloomFilterPenetrateProperties;
 import com.jack.configuration.RedisDistributedProperties;
+import com.jack.configuration.RedissonProperties;
 import lombok.AllArgsConstructor;
+import org.redisson.Redisson;
 import org.redisson.api.RBloomFilter;
 import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -33,7 +37,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
  * 缓存配置自动装配
  */
 @AllArgsConstructor
-@EnableConfigurationProperties({RedisDistributedProperties.class, BloomFilterPenetrateProperties.class})
+@EnableConfigurationProperties({RedisDistributedProperties.class, BloomFilterPenetrateProperties.class, RedissonProperties.class})
 public class CacheAutoConfiguration {
 
     private final RedisDistributedProperties redisDistributedProperties;
@@ -57,6 +61,13 @@ public class CacheAutoConfiguration {
         RBloomFilter<String> cachePenetrationBloomFilter = redissonClient.getBloomFilter(bloomFilterPenetrateProperties.getName());
         cachePenetrationBloomFilter.tryInit(bloomFilterPenetrateProperties.getExpectedInsertions(), bloomFilterPenetrateProperties.getFalseProbability());
         return cachePenetrationBloomFilter;
+    }
+
+    @Bean
+    public RedissonClient redissonClient(RedissonProperties redissonProperties, RedisProperties properties) {
+        Config config = new Config();
+        config.useSingleServer().setAddress("redis://" + properties.getHost() + ":" + properties.getPort()).setPassword(properties.getPassword()).setSubscriptionConnectionPoolSize(redissonProperties.getSubscriptionConnectionPoolSize()).setConnectionPoolSize(redissonProperties.getConnectionPoolSize()).setConnectionMinimumIdleSize(redissonProperties.getConnectionMinimumIdleSize()).setSubscriptionConnectionMinimumIdleSize(redissonProperties.getSubscriptionConnectionMinimumIdleSize()).setDnsMonitoringInterval(redissonProperties.getDnsMonitoringInterval());
+        return Redisson.create(config);
     }
 
     @Bean

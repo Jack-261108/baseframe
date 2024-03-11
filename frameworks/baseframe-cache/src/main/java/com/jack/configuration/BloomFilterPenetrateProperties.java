@@ -18,11 +18,13 @@
 package com.jack.configuration;
 
 import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * 缓存穿透布隆过滤器
  */
 @Data
+@ConfigurationProperties(BloomFilterPenetrateProperties.PREFIX)
 public class BloomFilterPenetrateProperties {
 
     public static final String PREFIX = "framework.cache.redis.bloom-filter.default";
@@ -41,4 +43,9 @@ public class BloomFilterPenetrateProperties {
      * 预期错误概率
      */
     private Double falseProbability = 0.03D;
+
+    /**
+     * 是否启用
+     */
+    private boolean enabled = false;
 }
